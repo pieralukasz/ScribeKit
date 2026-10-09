@@ -9,7 +9,7 @@ let package = Package(
         .executable(name: "scribe", targets: ["scribe"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/FluidInference/FluidAudio.git", exact: "0.17.4"),
+        .package(url: "https://github.com/FluidInference/FluidAudio.git", exact: "0.17.5"),
     ],
     targets: [
         .target(
