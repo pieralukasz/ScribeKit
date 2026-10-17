@@ -1,7 +1,7 @@
-import { DynamicCodeBlock } from "fumadocs-ui/components/dynamic-codeblock";
 import { AudioLines, Blocks, Cpu, FileText, Phone, Users } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { HomeCode } from "@/components/home-code";
 import { appName, asset, authorUrl, repoUrl } from "@/lib/shared";
 
 const features = [
@@ -73,7 +73,7 @@ export default function HomePage() {
                 height={40}
                 className="rounded-lg"
               />
-              <span className="rounded-md border bg-fd-card px-2 py-1 font-mono text-xs text-fd-muted-foreground">
+              <span className="rounded-md border bg-fd-card px-2 py-1 font-mono text-xs text-fd-muted-foreground max-sm:text-balance">
                 Swift package · MIT · macOS 14 and iOS 17
               </span>
             </div>
@@ -91,7 +91,7 @@ export default function HomePage() {
           <div className="grid min-w-0 gap-6 [&>div]:min-w-0">
             <div>
               <CodeLabel>Package.swift</CodeLabel>
-              <DynamicCodeBlock lang="swift" code={install} />
+              <HomeCode lang="swift" code={install} />
               <p className="mt-3 text-sm text-fd-muted-foreground">
                 Swift 6. The models (about 460 MB for speech, 20 MB for
                 speakers) download from Hugging Face on first use and are cached
@@ -100,7 +100,7 @@ export default function HomePage() {
             </div>
             <div>
               <CodeLabel>Transcribe a meeting</CodeLabel>
-              <DynamicCodeBlock lang="swift" code={example} />
+              <HomeCode lang="swift" code={example} />
             </div>
           </div>
         </div>

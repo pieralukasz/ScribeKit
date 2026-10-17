@@ -44,3 +44,21 @@ html > body[data-scroll-locked] {
 .fd-step:not(:has(h2, h3, h4)):not(:last-child) {
   padding-bottom: 0.75rem;
 }
+
+/* Phones: the home page code blocks wrap long lines (hanging indent from
+   home-code.tsx) instead of scrolling sideways past the screen edge. */
+@media (max-width: 639px) {
+  .home-code pre {
+    width: 100%;
+    font-size: 0.75rem;
+  }
+
+  .home-code figure.shiki .line {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    padding-left: calc(var(--padding-left) + var(--indent, 0ch) + 2ch);
+    /* The copy button only sits beside the short first line. */
+    padding-right: var(--padding-left);
+    text-indent: calc(-1 * (var(--indent, 0ch) + 2ch));
+  }
+}
