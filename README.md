@@ -57,6 +57,37 @@ Plain text only:
 let text = try await scribe.transcribeText(url)
 ```
 
+## Live transcription
+
+`LiveTranscriber` streams a two-track recording (microphone + system audio, 16 kHz mono, one
+timeline) into a transcript that corrects itself. It runs
+[Nemotron Unified ASR 0.6B](https://huggingface.co/FluidInference/nemotron-labs-unified-asr-0.6b-coreml)
+(CoreML fp16, 25 European languages, Polish by default) with a 560, 1120 (default) or 2080 ms
+look-ahead, and [LS-EEND](https://huggingface.co/FluidInference/ls-eend-coreml) to split the system
+track into anonymous speakers (`Speaker 1`, `Speaker 2`…, never matched to real people). The batch
+API above (Parakeet v3) is unchanged.
+
+```swift
+let live = LiveTranscriber(options: LiveOptions(language: "pl", latency: .ms1120))
+try await live.start()                                 // downloads models on first use
+try await live.feed(samples, track: .system, at: 12.0) // seconds on the recording's timeline
+let now = await live.snapshot()                        // any time, e.g. for an agent
+let new = now.changes(since: lastSeenRevision)         // words added or corrected
+let final = try await live.finish()                    // flushes the last words
+```
+
+Every word has a stable `id` and the `revision` that last changed it. `textState` and
+`speakerState` are `pending` until the model can no longer change them (the last word of a batch
+may still get its continuation; a speaker settles once LS-EEND finalizes that stretch). Every
+microphone word stays in `snapshot.transcript` by default. `LiveOptions(suppressBleed: true)`
+(`scribe live --suppress-bleed`) opts into a text guess for speakers without headphones: a
+microphone word repeating a system word within 0.8 s is marked `isBleed` and left out of
+`snapshot.transcript`; it also hides a real "tak" said by both sides at once. A jump in `at` is recorded as a gap and
+filled with silence, so times stay aligned. `cancel()` stops without flushing.
+
+`scribe live <microphone.wav|-> <system.wav|-> [--latency 560|1120|2080] [--paced] [--suppress-bleed]` replays files
+through the same path and prints delays, RTFx and memory (`--paced` feeds in real time).
+
 ## Command line
 
 ```bash
@@ -69,3 +100,8 @@ swift run -c release scribe conversation mic.wav system.wav --me "Łukasz"
 
 MIT. The models are released by NVIDIA (Parakeet, CC-BY-4.0) and pyannote (diarization) and converted to Core ML by
 FluidInference; check their licenses before shipping.
+
+Model weights are not part of this package and are downloaded on first use under their own
+licenses: Parakeet TDT 0.6B v3 (CC-BY-4.0, NVIDIA), Nemotron Labs Unified ASR 0.6B
+(OpenMDW-1.1, NVIDIA; keep its license text and notices when redistributing), LS-EEND (MIT).
+FluidAudio, which runs them, is Apache-2.0.
