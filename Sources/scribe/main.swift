@@ -6,6 +6,7 @@ import ScribeKit
 ///     scribe prepare [--diarize]
 ///     scribe <audio> [--lang pl] [--no-diarize] [--speakers N] [--format md|txt|srt|vtt|json]
 ///     scribe conversation <microphone.wav> <system.wav> [--lang pl] [--me "Name"] [--format …]
+///     scribe live <microphone.wav|-> <system.wav|-> [--lang pl] [--latency 1120] [--paced] [--out f.json]
 @main
 struct ScribeCLI {
     static func main() async {
@@ -37,6 +38,10 @@ struct ScribeCLI {
             if first == "prepare" {
                 try await scribe.prepare(diarization: flag("--diarize"), progress: progress)
                 fputs("\nModels ready.\n", stderr)
+                return
+            }
+            if first == "live" {
+                try await LiveCommand.run(args, option: option, flag: flag)
                 return
             }
 
@@ -74,6 +79,8 @@ struct ScribeCLI {
         usage: scribe prepare [--diarize]
                scribe <audio> [--lang pl] [--no-diarize] [--speakers N] [--format md|txt|srt|vtt|json]
                scribe conversation <microphone.wav> <system.wav> [--lang pl] [--me "Name"] [--format …]
+               scribe live <microphone.wav|-> <system.wav|-> [--lang pl] [--latency 560|1120|2080] [--paced]
+                           [--chunk-ms 100] [--no-diarize] [--out live.json] [--metrics metrics.json]
         """)
     }
 }
